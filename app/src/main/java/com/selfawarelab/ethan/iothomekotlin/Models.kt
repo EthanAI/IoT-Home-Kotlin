@@ -71,3 +71,7 @@ data class HueConfig(
         val function: String,
         val direction: String
 )
+
+data class HueLightChangeResponse(
+        val success: Map<String, Boolean>
+)
