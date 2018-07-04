@@ -1,6 +1,9 @@
 package com.selfawarelab.ethan.iothomekotlin
 
-fun getHueBridgeUrl(): String {
+val URL_PREFIX: String = "http://"
+val BRIDGE_FINDER_IP: String = "https://www.meethue.com/"
+
+fun getHueBridgeIp(): String {
     // TODO: Upnp work
     return "http://192.168.86.30/"
 }

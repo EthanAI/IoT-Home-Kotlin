@@ -14,19 +14,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val hueApiService = HueApiService.create()
-
-        disposable = hueApiService.getLights(getUserName())
+        // TODO: Handle disposables
+        // TODO: Leaner flow
+        HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeUrl()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { hueLightMap ->
-                            Timber.d("Hue: " + hueLightMap.size)
-                        },
-                        { error ->
-                            Timber.e("Hue: " + error.localizedMessage)
-                        }
-                )
+                .map { response -> response[0].internalipaddress}
+                .subscribe({ bridgeIpAdress ->
+                    Timber.d("HueBridge: " + bridgeIpAdress)
+                    val bridgeUrl = URL_PREFIX + bridgeIpAdress
+                    HueApiService.create(bridgeUrl).getLights(getUserName())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({ hueLightMap ->
+                                Timber.d("Hue: " + hueLightMap.size)
+                            }, { error ->
+                                Timber.e("Hue: " + error.localizedMessage)
+                            })
+                }, { error ->
+                    Timber.e("HueBridge: " + error.localizedMessage)
+                })
     }
 
     override fun onDestroy() {

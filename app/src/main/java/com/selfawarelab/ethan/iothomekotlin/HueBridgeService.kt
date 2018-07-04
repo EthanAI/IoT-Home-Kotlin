@@ -7,20 +7,25 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface HueApiService {
-    @GET("api/{userName}/lights")
-    fun getLights(@Path("userName") userName: String): Single<Map<String, HueLight>>
+interface HueBridgeService {
+    @GET("api/nupnp/")
+    fun getBridgeUrl(): Single<List<HueBridgeFinderResponse>>
 
     companion object {
-        fun create(bridgeUrl: String): HueApiService {
+        fun create(bridgeFinderUrl: String): HueBridgeService {
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
-                    .baseUrl(bridgeUrl)
+                    .baseUrl(bridgeFinderUrl)
                     .build()
 
-            return retrofit.create(HueApiService::class.java)
+            return retrofit.create(HueBridgeService::class.java)
         }
     }
+
+    data class HueBridgeFinderResponse(
+            val id: String,
+            val internalipaddress: String
+    )
 }
 
