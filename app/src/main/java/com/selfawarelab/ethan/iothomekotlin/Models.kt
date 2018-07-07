@@ -3,18 +3,19 @@ package com.selfawarelab.ethan.iothomekotlin
 data class HueLightList(
         val lightList: Map<String, HueLight>
 )
+
 data class HueLight(
-    val state: HueLightState,
-    val swupdate: SwUpdate,
-    val type: String,
-    val name: String,
-    val modelid: String,
-    val manufacturername: String,
-    val productname: String,
-    val capabilities: HueLightCapabilities,
-    val config: HueConfig,
-    val uniqueid: String,
-    val swversion: String
+        val state: HueLightState,
+        val swupdate: SwUpdate,
+        val type: String,
+        val name: String,
+        val modelid: String,
+        val manufacturername: String,
+        val productname: String,
+        val capabilities: HueLightCapabilities,
+        val config: HueConfig,
+        val uniqueid: String,
+        val swversion: String
 )
 
 data class HueLightState(
@@ -42,9 +43,9 @@ data class SwUpdate(
 )
 
 data class HueLightCapabilities(
-    val certified: Boolean,
-    val control: HueControl,
-    val streaming: HueStreaming
+        val certified: Boolean,
+        val control: HueControl,
+        val streaming: HueStreaming
 
 )
 
@@ -72,6 +73,7 @@ data class HueConfig(
         val direction: String
 )
 
+// TODO: make a list wrapper
 data class HueLightChangeResponse(
         val success: Map<String, Boolean>
 )

@@ -8,7 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import java.util.HashMap
+import java.util.*
 
 interface HueApiService {
     @GET("api/{userName}/lights")
@@ -16,14 +16,14 @@ interface HueApiService {
 
     @PUT("api/{userName}/lights/{lightName}/state")
     fun changeLightState(@Path("userName") userName: String,
-                     @Path("lightName") lightName: String,
-                     @Body body: HashMap<String, Boolean>)
-            : Single<HueLightChangeResponse>
+                         @Path("lightName") lightName: String,
+                         @Body body: HashMap<String, Boolean>)
+            : Single<List<HueLightChangeResponse>>
 
     @PUT("api/{userName}/groups/0/action")
     fun changeAllLightState(@Path("userName") userName: String,
-                         @Body body: HashMap<String, Boolean>)
-            : Single<HueLightChangeResponse>
+                            @Body body: HashMap<String, Boolean>)
+            : Single<List<HueLightChangeResponse>>
 
     companion object {
         fun create(bridgeUrl: String): HueApiService {

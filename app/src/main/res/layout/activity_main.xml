@@ -23,7 +23,17 @@
         android:layout_height="wrap_content"
         android:textOn="All On"
         android:textOff="All Off"
+        android:checked="true"
         />
 
+    <ToggleButton
+        android:id="@+id/oneLightToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/allLightsToggleButton"
+        android:textOn="1 On"
+        android:textOff="1 Off"
+        android:checked="true"
+        />
 
 </android.support.constraint.ConstraintLayout>

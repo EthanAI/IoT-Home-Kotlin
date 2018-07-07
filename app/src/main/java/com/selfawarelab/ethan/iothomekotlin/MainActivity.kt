@@ -2,7 +2,6 @@ package com.selfawarelab.ethan.iothomekotlin
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.CompoundButton
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -17,6 +16,7 @@ import timber.log.Timber
 // TODO: UI display state
 // TODO: colors
 // TODO: shared code refactor
+// TODO: Fix Timber logging
 // Probably best to fetch bridgeIp each time
 class MainActivity : AppCompatActivity() {
     var disposable: Disposable? = null
@@ -28,9 +28,8 @@ class MainActivity : AppCompatActivity() {
         // Wire up UI
         connectUI()
 
-//        turnLightOff("1")
-//        turnLightOn("1")
-//        turnAllLightsOn()
+        // Initialize values
+        getLightStatusList()
     }
 
     override fun onDestroy() {
@@ -43,113 +42,62 @@ class MainActivity : AppCompatActivity() {
         allLightsToggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
             changeAllLights(isChecked);
         }
-
+        oneLightToggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
+            changeLight("1", isChecked)
+        }
     }
 
     // TODO: Handle disposables
-    // TODO: Leaner flow
-    // TODO: Dissassemble into parameters that can be reused
-    fun turnLightOff(lightName: String) {
-        HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeUrl()
-                .subscribeOn(Schedulers.io())
+    fun changeLight(lightName: String, turnOn: Boolean) {
+        val lightOffBody: HashMap<String, Boolean> = java.util.HashMap()
+        lightOffBody.put("on", turnOn)
+
+        bridgeUrlSingle
+                .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).changeLightState(getUserName(), lightName, lightOffBody) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .map { response -> response[0].internalipaddress}
-                .subscribe({ bridgeIpAdress ->
-                    Timber.d("HueBridge: " + bridgeIpAdress)
-                    val bridgeUrl = URL_PREFIX + bridgeIpAdress
-
-                    val lightOffBody: HashMap<String, Boolean> = java.util.HashMap()
-                    lightOffBody.put("on", false)
-
-                    HueApiService.create(bridgeUrl)
-                            .changeLightState(getUserName(), lightName, lightOffBody)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({hueLightChangeResponse ->
-                                Timber.d("Hue light off: " + hueLightChangeResponse.success.size)
-                            }, { error ->
-                                Timber.e("Hue: " + error.localizedMessage)
-                            })
-                }, { error ->
-                    Timber.e("HueBridge: " + error.localizedMessage)
-                })
+                .subscribe({ hueLightChangeResponseList ->
+                    Timber.d("Hue light off: %s", getResponseStatus(hueLightChangeResponseList))
+                }, errorHandler)
     }
 
-    fun turnLightOn(lightName: String) {
-        HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeUrl()
-                .subscribeOn(Schedulers.io())
+    fun changeAllLights(turnOn: Boolean) {
+        val body: HashMap<String, Boolean> = java.util.HashMap()
+        body.put("on", turnOn)
+
+        bridgeUrlSingle
+                .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).changeAllLightState(getUserName(), body) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .map { response -> response[0].internalipaddress}
-                .subscribe({ bridgeIpAdress ->
-                    Timber.d("HueBridge: " + bridgeIpAdress)
-                    val bridgeUrl = URL_PREFIX + bridgeIpAdress
-
-                    val lightOnBody: HashMap<String, Boolean> = java.util.HashMap()
-                    lightOnBody.put("on", true)
-
-                    HueApiService.create(bridgeUrl)
-                            .changeLightState(getUserName(), lightName, lightOnBody)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({hueLightChangeResponse ->
-                                Timber.d("Hue light on: " + hueLightChangeResponse.success.size)
-                            }, { error ->
-                                Timber.e("Hue: " + error.localizedMessage)
-                            })
-                }, { error ->
-                    Timber.e("HueBridge: " + error.localizedMessage)
-                })
+                .subscribe({ hueLightChangeResponseList ->
+                    Timber.d("Hue all: " + getResponseTarget(hueLightChangeResponseList) + " " + getResponseStatus(hueLightChangeResponseList))
+                }, errorHandler)
     }
 
-    fun changeAllLights(onState: Boolean) {
-        HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeUrl()
-                .subscribeOn(Schedulers.io())
+    fun getLightStatusList() {
+        bridgeUrlSingle
+                .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).getLights(getUserName()) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .map { response -> response[0].internalipaddress}
-                .subscribe({ bridgeIpAdress ->
-                    Timber.d("HueBridge: " + bridgeIpAdress)
-                    val bridgeUrl = URL_PREFIX + bridgeIpAdress
-
-                    val body: HashMap<String, Boolean> = java.util.HashMap()
-                    body.put("on", onState)
-
-                    HueApiService.create(bridgeUrl)
-                            .changeAllLightState(getUserName(), body)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({hueLightChangeResponse ->
-                                Timber.d("Hue all: " + hueLightChangeResponse.success.size)
-                            }, { error ->
-                                Timber.e("Hue: " + error.localizedMessage)
-                            })
-                }, { error ->
-                    Timber.e("HueBridge: " + error.localizedMessage)
-                })
+                .subscribe({ hueLightMap ->
+                    Timber.d("Hue: %s", hueLightMap.size)
+                }, errorHandler)
     }
 
-    fun getLights() {
-        HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeUrl()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map { response -> response[0].internalipaddress}
-                .subscribe({ bridgeIpAdress ->
-                    Timber.d("HueBridge: " + bridgeIpAdress)
-                    val bridgeUrl = URL_PREFIX + bridgeIpAdress
+    fun getResponseTarget(hueLightChangeResponseList: List<HueLightChangeResponse>) {
+        hueLightChangeResponseList[0].success.entries.first().key
+    }
 
-                    val lightOffBody: HashMap<String, Boolean> = java.util.HashMap()
-                    lightOffBody.put("on", false)
+    fun getResponseStatus(hueLightChangeResponseList: List<HueLightChangeResponse>) {
+        hueLightChangeResponseList[0].success.entries.first().value
+    }
 
-                    HueApiService.create(bridgeUrl)
-                            .getLights(getUserName())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({ hueLightMap ->
-                                Timber.d("Hue: " + hueLightMap.size)
-                            }, { error ->
-                                Timber.e("Hue: " + error.localizedMessage)
-                            })
-                }, { error ->
-                    Timber.e("HueBridge: " + error.localizedMessage)
-                })
+    val toBridgeUrl = { response: List<HueBridgeService.HueBridgeFinderResponse> ->
+        URL_PREFIX + response[0].internalipaddress
+    }
+
+    val bridgeUrlSingle = HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeIp()
+            .subscribeOn(Schedulers.io())
+            .map(toBridgeUrl)
+
+    val errorHandler = { error: Throwable ->
+        Timber.e("HueBridge: %s", error.localizedMessage)
     }
 }

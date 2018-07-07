@@ -5,11 +5,10 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Path
 
 interface HueBridgeService {
     @GET("api/nupnp/")
-    fun getBridgeUrl(): Single<List<HueBridgeFinderResponse>>
+    fun getBridgeIp(): Single<List<HueBridgeFinderResponse>>
 
     companion object {
         fun create(bridgeFinderUrl: String): HueBridgeService {
