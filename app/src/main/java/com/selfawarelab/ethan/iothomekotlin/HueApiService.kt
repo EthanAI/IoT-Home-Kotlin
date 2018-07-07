@@ -15,9 +15,14 @@ interface HueApiService {
     fun getLights(@Path("userName") userName: String): Single<Map<String, HueLight>>
 
     @PUT("api/{userName}/lights/{lightName}/state")
-    fun turnLightOff(@Path("userName") userName: String,
+    fun changeLightState(@Path("userName") userName: String,
                      @Path("lightName") lightName: String,
                      @Body body: HashMap<String, Boolean>)
+            : Single<HueLightChangeResponse>
+
+    @PUT("api/{userName}/groups/0/action")
+    fun changeAllLightState(@Path("userName") userName: String,
+                         @Body body: HashMap<String, Boolean>)
             : Single<HueLightChangeResponse>
 
     companion object {
