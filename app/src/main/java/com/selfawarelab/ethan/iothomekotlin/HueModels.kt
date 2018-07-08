@@ -1,9 +1,5 @@
 package com.selfawarelab.ethan.iothomekotlin
 
-data class HueLightList(
-        val lightList: Map<String, HueLight>
-)
-
 data class HueLight(
         val state: HueLightState,
         val swupdate: SwUpdate,
@@ -31,11 +27,6 @@ data class HueLightState(
         val mode: String,
         val reachable: Boolean
 )
-
-//data class HuePoint(
-//        val x: Float,
-//        val y: Float
-//)
 
 data class SwUpdate(
         val state: String,

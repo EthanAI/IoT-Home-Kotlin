@@ -12,6 +12,9 @@ interface HueBridgeService {
     fun getBridgeIp(): Single<List<HueBridgeFinderResponse>>
 
     companion object {
+        val URL_PREFIX: String = "http://"
+        val BRIDGE_FINDER_IP: String = "https://www.meethue.com/"
+
         fun create(bridgeFinderUrl: String): HueBridgeService {
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))

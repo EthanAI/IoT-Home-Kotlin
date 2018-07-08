@@ -11,6 +11,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Url
 import timber.log.Timber
 
 // TODO: Get initial state
@@ -23,20 +24,19 @@ interface WeMoService {
     // Content Type and SOAPACTION are mandatory
     @Headers(
             "Content-Type: text/xml",
-            "SOAPACTION: \"urn:Belkin:service:basicevent:1#SetBinaryState\""
-    )
-    @POST("upnp/control/basicevent1")
-    fun flipSwitch(@Body body: RequestBody): Single<String>
+            "SOAPACTION: \"urn:Belkin:service:basicevent:1#SetBinaryState\"")
+    @POST
+    fun flipSwitch(@Url url: String, @Body body: RequestBody): Single<String>
 
     companion object {
-        private val bathroomLightUrl = "http://192.168.86.22:49153/"
-        private val bedroomLightUrl = "http://192.168.86.48:49153/"
+        private val bathroomLightControlUrl = "http://192.168.86.22:49153/upnp/control/basicevent1"
+        private val bedroomLightControlUrl = "http://192.168.86.48:49153/upnp/control/basicevent1"
 
-        fun create(deviceUrl: String): WeMoService {
+        fun create(): WeMoService {
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                     .addConverterFactory(ScalarsConverterFactory.create())
-                    .baseUrl(deviceUrl)
+                    .baseUrl("http:notUsed/")
                     .build()
 
             return retrofit.create(WeMoService::class.java)
@@ -48,15 +48,15 @@ interface WeMoService {
         }
 
         fun changeBathroomLight(lightOn: Boolean) {
-            changeLight(bathroomLightUrl, lightOn)
+            changeLight(bathroomLightControlUrl, lightOn)
         }
 
         fun changeBedroomLight(lightOn: Boolean) {
-            changeLight(bedroomLightUrl, lightOn)
+            changeLight(bedroomLightControlUrl, lightOn)
         }
 
         private fun changeLight(lightUrl: String, lightOn: Boolean) {
-            create(lightUrl).flipSwitch(buildRequestBody(lightOn))
+            create().flipSwitch(lightUrl, buildRequestBody(lightOn))
                     .subscribe({ response ->
                         Log.d("Wemo ", response)
                     }, errorHandler)

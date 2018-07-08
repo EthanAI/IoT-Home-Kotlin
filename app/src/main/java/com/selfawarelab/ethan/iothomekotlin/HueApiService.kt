@@ -1,6 +1,8 @@
 package com.selfawarelab.ethan.iothomekotlin
 
 import android.util.Log
+import com.selfawarelab.ethan.iothomekotlin.HueBridgeService.Companion.BRIDGE_FINDER_IP
+import com.selfawarelab.ethan.iothomekotlin.HueBridgeService.Companion.URL_PREFIX
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -79,6 +81,21 @@ interface HueApiService {
 
         fun getResponseStatus(hueLightChangeResponseList: List<HueLightChangeResponse>) {
             hueLightChangeResponseList[0].success.entries.first().value
+        }
+
+        fun getUserName(): String {
+            // https://developers.meethue.com/documentation/getting-started
+            // Post {"devicetype":"my_hue_app#iphone peter"}
+            // Handle response of "link button not pressed"
+
+            /*
+            {
+                "success": {
+                    "username": "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
+                }
+            }
+             */
+            return "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
         }
 
         val toBridgeUrl = { response: List<HueBridgeService.HueBridgeFinderResponse> ->
