@@ -44,7 +44,7 @@ interface WeMoService {
 
         fun changeAllLights(lightOn: Boolean) {
             changeBathroomLight(lightOn)
-            changeBathroomLight(lightOn)
+            changeBedroomLight(lightOn)
         }
 
         fun changeBathroomLight(lightOn: Boolean) {
