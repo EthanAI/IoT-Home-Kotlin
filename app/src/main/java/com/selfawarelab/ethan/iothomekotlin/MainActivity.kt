@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
                         if (mapEntry.key.equals(HueApiService.SUCCESS_TAG)) {
                             Log.e("Hue ID", mapEntry.value.username)
                             writeHueUserId(mapEntry.value.username)
+                            HueApiService.userId = mapEntry.value.username
                         } else {
                             Toast.makeText(this, "No userId saved. Press Hue Bridge button and try again", Toast.LENGTH_SHORT).show()
                             Log.e("Hue ID", mapEntry.key)

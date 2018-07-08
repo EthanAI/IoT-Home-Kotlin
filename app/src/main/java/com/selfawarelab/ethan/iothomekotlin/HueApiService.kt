@@ -34,7 +34,7 @@ interface HueApiService {
         val SUCCESS_TAG = "success"
         val DEVICE_ID_PLACEHOLDER = "F0F0"
 
-        var userId: String = "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
+        var userId: String? = null // "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
 
         private fun create(bridgeUrl: String): HueApiService {
             val retrofit = Retrofit.Builder()
@@ -67,7 +67,7 @@ interface HueApiService {
         fun changeLight(lightName: String, turnOn: Boolean) {
             HueBridgeService.bridgeUrlSingle
                     .flatMap { bridgeUrl ->
-                        create(bridgeUrl).changeLightState(userId, lightName, buildLightChangeBody(turnOn))
+                        create(bridgeUrl).changeLightState(userId!!, lightName, buildLightChangeBody(turnOn))
                     }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightChangeResponseList ->
@@ -80,7 +80,7 @@ interface HueApiService {
             body.put(ON_TAG, turnOn)
 
             HueBridgeService.bridgeUrlSingle
-                    .flatMap { bridgeUrl -> create(bridgeUrl).changeAllLightState(userId, body) }
+                    .flatMap { bridgeUrl -> create(bridgeUrl).changeAllLightState(userId!!, body) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightChangeResponseList ->
                         Timber.d("Hue all: " + getResponseTarget(hueLightChangeResponseList) + " " + getResponseStatus(hueLightChangeResponseList))
@@ -89,7 +89,7 @@ interface HueApiService {
 
         fun getLightStatusList() {
             HueBridgeService.bridgeUrlSingle
-                    .flatMap { bridgeUrl -> create(bridgeUrl).getLights(userId) }
+                    .flatMap { bridgeUrl -> create(bridgeUrl).getLights(userId!!) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightMap ->
                         Timber.d("Hue: %s", hueLightMap.size)
