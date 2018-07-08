@@ -18,11 +18,11 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ToggleButton
-        android:id="@+id/allLightsToggleButton"
+        android:id="@+id/allHueLightsToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOn="All On"
-        android:textOff="All Off"
+        android:textOn="Hue On"
+        android:textOff="Hue Off"
         android:checked="true"
         />
 
@@ -30,20 +30,43 @@
         android:id="@+id/oneLightToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/allLightsToggleButton"
         android:textOn="1 On"
         android:textOff="1 Off"
         android:checked="true"
+        app:layout_constraintStart_toEndOf="@id/allHueLightsToggleButton"
         />
 
     <ToggleButton
         android:id="@+id/bathroomLightToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/oneLightToggleButton"
         android:textOn="Bathroom On"
         android:textOff="Bathroom Off"
         android:checked="true"
+        app:layout_constraintTop_toBottomOf="@+id/allHueLightsToggleButton"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <ToggleButton
+        android:id="@+id/bedroomLightToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="Bedroom On"
+        android:textOff="Bedroom Off"
+        android:checked="true"
+        app:layout_constraintTop_toBottomOf="@+id/allHueLightsToggleButton"
+        app:layout_constraintStart_toEndOf="@id/bathroomLightToggleButton"
+        />
+
+    <ToggleButton
+        android:id="@+id/allLightsToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="All On"
+        android:textOff="All Off"
+        android:checked="true"
+        app:layout_constraintTop_toBottomOf="@+id/bathroomLightToggleButton"
+        app:layout_constraintStart_toStartOf="parent"
         />
 
 </android.support.constraint.ConstraintLayout>
