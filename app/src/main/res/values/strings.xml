@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Iot Home Kotlin</string>
+    <string name="userIdKey">userIdKey</string>
 </resources>

@@ -1,9 +1,13 @@
 package com.selfawarelab.ethan.iothomekotlin
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.widget.Toast
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 // TODO: UI to request user to hit bridge button when needed
 // TODO: get username
@@ -16,6 +20,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 // Probably best to fetch bridgeIp each time
 class MainActivity : AppCompatActivity() {
+    val USERID_KEY = getString(R.string.userIdKey)
+
     var disposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +34,20 @@ class MainActivity : AppCompatActivity() {
         // Initialize values
         HueApiService.getLightStatusList()
 
-        HueApiService.requestNewUserId()
+        // Check if we have a stored hueUserId. If not, request one from the bridge
+        val hueUserId = readHueUserId();
+        if (hueUserId == null) {
+            HueApiService.getRequestNewUserIdSingle()
+                    .subscribe({ mapEntry ->
+                        if (mapEntry.key.equals(HueApiService.SUCCESS_TAG)) {
+                            Log.e("Hue ID", mapEntry.value.username)
+                            writeHueUserId(mapEntry.value.username)
+                        } else {
+                            Toast.makeText(this, "No userId saved. Press Hue Bridge button and try again", Toast.LENGTH_SHORT).show()
+                            Log.e("Hue ID", mapEntry.key)
+                        }
+                    }, errorHandler)
+        }
     }
 
     override fun onDestroy() {
@@ -54,5 +73,24 @@ class MainActivity : AppCompatActivity() {
         bedroomLightToggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
             WeMoService.changeBedroomLight(isChecked)
         }
+    }
+
+    fun readHueUserId(): String? {
+        val sharedPref = getPreferences(Context.MODE_PRIVATE)
+        return sharedPref.getString(USERID_KEY, null)
+    }
+
+    fun writeHueUserId(hueUserId: String) {
+        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+
+        with(sharedPref.edit()) {
+            putString(USERID_KEY, hueUserId)
+            commit()
+        }
+    }
+
+    private val errorHandler = { error: Throwable ->
+        Log.e("Error ", error.localizedMessage)
+        Timber.e("MainActivity: %s", error.localizedMessage)
     }
 }
