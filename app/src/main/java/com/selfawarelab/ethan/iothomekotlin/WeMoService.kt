@@ -83,7 +83,7 @@ interface WeMoService {
 
         val errorHandler = { error: Throwable ->
             Log.e("Error ", error.localizedMessage)
-            Timber.e("HueBridge: %s", error.localizedMessage)
+            Timber.e("Wemo: %s", error.localizedMessage)
         }
     }
 

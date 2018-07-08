@@ -1,5 +1,11 @@
 package com.selfawarelab.ethan.iothomekotlin
 
+
+data class HueBridgeFinderResponse(
+        val id: String,
+        val internalipaddress: String
+)
+
 data class HueLight(
         val state: HueLightState,
         val swupdate: SwUpdate,
@@ -68,3 +74,11 @@ data class HueConfig(
 data class HueLightChangeResponse(
         val success: Map<String, Boolean>
 )
+
+fun getResponseTarget(hueLightChangeResponseList: List<HueLightChangeResponse>) {
+    hueLightChangeResponseList[0].success.entries.first().key
+}
+
+fun getResponseStatus(hueLightChangeResponseList: List<HueLightChangeResponse>) {
+    hueLightChangeResponseList[0].success.entries.first().value
+}

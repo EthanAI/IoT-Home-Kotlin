@@ -1,8 +1,6 @@
 package com.selfawarelab.ethan.iothomekotlin
 
 import android.util.Log
-import com.selfawarelab.ethan.iothomekotlin.HueBridgeService.Companion.BRIDGE_FINDER_IP
-import com.selfawarelab.ethan.iothomekotlin.HueBridgeService.Companion.URL_PREFIX
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -32,7 +30,9 @@ interface HueApiService {
             : Single<List<HueLightChangeResponse>>
 
     companion object {
-        fun create(bridgeUrl: String): HueApiService {
+        val ON_TAG = "on"
+
+        private fun create(bridgeUrl: String): HueApiService {
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                     .addConverterFactory(GsonConverterFactory.create())
@@ -42,12 +42,16 @@ interface HueApiService {
             return retrofit.create(HueApiService::class.java)
         }
 
-        fun changeLight(lightName: String, turnOn: Boolean) {
+        private fun buildLightChangeBody(turnOn: Boolean): HashMap<String, Boolean> {
             val lightOffBody: HashMap<String, Boolean> = java.util.HashMap()
-            lightOffBody.put("on", turnOn)
+                lightOffBody.put(ON_TAG, turnOn)
+            return lightOffBody
+        }
 
-            bridgeUrlSingle
-                    .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).changeLightState(getUserName(), lightName, lightOffBody) }
+        fun changeLight(lightName: String, turnOn: Boolean) {
+            HueBridgeService.bridgeUrlSingle
+                    .flatMap { bridgeUrl ->
+                        HueApiService.create(bridgeUrl).changeLightState(HueBridgeService.getUserName(), lightName, buildLightChangeBody(turnOn)) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightChangeResponseList ->
                         Timber.d("Hue light off: %s", getResponseStatus(hueLightChangeResponseList))
@@ -56,10 +60,10 @@ interface HueApiService {
 
         fun changeAllLights(turnOn: Boolean) {
             val body: HashMap<String, Boolean> = java.util.HashMap()
-            body.put("on", turnOn)
+            body.put(ON_TAG, turnOn)
 
-            bridgeUrlSingle
-                    .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).changeAllLightState(getUserName(), body) }
+            HueBridgeService.bridgeUrlSingle
+                    .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).changeAllLightState(HueBridgeService.getUserName(), body) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightChangeResponseList ->
                         Timber.d("Hue all: " + getResponseTarget(hueLightChangeResponseList) + " " + getResponseStatus(hueLightChangeResponseList))
@@ -67,47 +71,18 @@ interface HueApiService {
         }
 
         fun getLightStatusList() {
-            bridgeUrlSingle
-                    .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).getLights(getUserName()) }
+            HueBridgeService.bridgeUrlSingle
+                    .flatMap { bridgeUrl -> HueApiService.create(bridgeUrl).getLights(HueBridgeService.getUserName()) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ hueLightMap ->
                         Timber.d("Hue: %s", hueLightMap.size)
                     }, errorHandler)
         }
 
-        fun getResponseTarget(hueLightChangeResponseList: List<HueLightChangeResponse>) {
-            hueLightChangeResponseList[0].success.entries.first().key
-        }
 
-        fun getResponseStatus(hueLightChangeResponseList: List<HueLightChangeResponse>) {
-            hueLightChangeResponseList[0].success.entries.first().value
-        }
-
-        fun getUserName(): String {
-            // https://developers.meethue.com/documentation/getting-started
-            // Post {"devicetype":"my_hue_app#iphone peter"}
-            // Handle response of "link button not pressed"
-
-            /*
-            {
-                "success": {
-                    "username": "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
-                }
-            }
-             */
-            return "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
-        }
-
-        val toBridgeUrl = { response: List<HueBridgeService.HueBridgeFinderResponse> ->
-            URL_PREFIX + response[0].internalipaddress
-        }
-
-        val bridgeUrlSingle = HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeIp()
-                .map(toBridgeUrl)
-
-        val errorHandler = { error: Throwable ->
+        private val errorHandler = { error: Throwable ->
             Log.e("Error ", error.localizedMessage)
-            Timber.e("HueBridge: %s", error.localizedMessage)
+            Timber.e("HueApi: %s", error.localizedMessage)
         }
     }
 }
