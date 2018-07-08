@@ -34,7 +34,7 @@ interface WeMoService {
 
         fun create(deviceUrl: String): WeMoService {
             val retrofit = Retrofit.Builder()
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .baseUrl(deviceUrl)
                     .build()
@@ -57,7 +57,6 @@ interface WeMoService {
 
         private fun changeLight(lightUrl: String, lightOn: Boolean) {
             create(lightUrl).flipSwitch(buildRequestBody(lightOn))
-                    .subscribeOn(Schedulers.io())
                     .subscribe({ response ->
                         Log.d("Wemo ", response)
                     }, errorHandler)

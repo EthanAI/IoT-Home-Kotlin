@@ -9,8 +9,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 // TODO: get username
 // TODO: store / fetch username. Handle it existing but not working
 // TODO: parse light state responses
-// TODO: UI inputs
-// TODO: UI display state
+// TODO: UI confirmed
 // TODO: Hue colors
 // TODO: Fix Timber logging
 // TODO: Handle disposables

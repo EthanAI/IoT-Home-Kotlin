@@ -32,7 +32,7 @@ interface HueApiService {
     companion object {
         fun create(bridgeUrl: String): HueApiService {
             val retrofit = Retrofit.Builder()
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl(bridgeUrl)
                     .build()
@@ -86,7 +86,6 @@ interface HueApiService {
         }
 
         val bridgeUrlSingle = HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeIp()
-                .subscribeOn(Schedulers.io())
                 .map(toBridgeUrl)
 
         val errorHandler = { error: Throwable ->
