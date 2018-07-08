@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize values
         HueApiService.getLightStatusList()
+
+        HueApiService.requestNewUserId()
     }
 
     override fun onDestroy() {

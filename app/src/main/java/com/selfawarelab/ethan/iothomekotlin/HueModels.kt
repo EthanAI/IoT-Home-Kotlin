@@ -6,6 +6,10 @@ data class HueBridgeFinderResponse(
         val internalipaddress: String
 )
 
+data class HueUserIdRequestResponse(
+        val username: String
+)
+
 data class HueLight(
         val state: HueLightState,
         val swupdate: SwUpdate,

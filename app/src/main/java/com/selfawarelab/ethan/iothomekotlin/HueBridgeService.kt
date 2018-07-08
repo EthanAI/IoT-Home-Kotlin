@@ -25,21 +25,6 @@ interface HueBridgeService {
             return retrofit.create(HueBridgeService::class.java)
         }
 
-        fun getUserName(): String {
-            // https://developers.meethue.com/documentation/getting-started
-            // Post {"devicetype":"my_hue_app#iphone peter"}
-            // Handle response of "link button not pressed"
-
-            /*
-            {
-                "success": {
-                    "username": "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
-                }
-            }
-             */
-            return "dD53QxH0dD-885MoQ7m5ucysjuXxhlSFgVtL2KBp"
-        }
-
         val bridgeUrlSingle = HueBridgeService.create(BRIDGE_FINDER_IP).getBridgeIp()
                 .map { response: List<HueBridgeFinderResponse> -> URL_PREFIX + response[0].internalipaddress }
     }
