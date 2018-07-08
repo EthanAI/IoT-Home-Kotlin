@@ -81,12 +81,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun writeHueUserId(hueUserId: String) {
-        val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return
+        val sharedPrefEditor = getPreferences(Context.MODE_PRIVATE).edit()
 
-        with(sharedPref.edit()) {
-            putString(USERID_KEY, hueUserId)
-            commit()
-        }
+        sharedPrefEditor.putString(USERID_KEY, hueUserId)
+        sharedPrefEditor.commit()
     }
 
     private val errorHandler = { error: Throwable ->
