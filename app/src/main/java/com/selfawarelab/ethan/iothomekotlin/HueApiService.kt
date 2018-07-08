@@ -1,6 +1,5 @@
 package com.selfawarelab.ethan.iothomekotlin
 
-import android.util.Log
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

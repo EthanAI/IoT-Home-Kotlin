@@ -4,12 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Toast
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
-import timber.log.Timber.DebugTree
-
 
 
 // TODO: UI to request user to hit bridge button when needed
@@ -23,17 +20,13 @@ import timber.log.Timber.DebugTree
 
 // Probably best to fetch bridgeIp each time
 class MainActivity : AppCompatActivity() {
-    val USERID_KEY = "gg"
+    val USERID_KEY = MyApplication.myApplication.getString(R.string.userIdKey)
 
     var disposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        Timber.plant(DebugTree())
-        
-        val sdf = getString(R.string.userIdKey)
 
         // Wire up UI
         connectUI()
@@ -43,18 +36,22 @@ class MainActivity : AppCompatActivity() {
 
         // Check if we have a stored hueUserId. If not, request one from the bridge
         val hueUserId = readHueUserId();
-        if (hueUserId == null) {
-            HueApiService.getRequestNewUserIdSingle()
-                    .subscribe({ mapEntry ->
-                        if (mapEntry.key.equals(HueApiService.SUCCESS_TAG)) {
-                            Timber.d("Hue ID " + mapEntry.value.username)
-                            writeHueUserId(mapEntry.value.username)
-                            HueApiService.userId = mapEntry.value.username
-                        } else {
-                            Toast.makeText(this, "No userId saved. Press Hue Bridge button and try again", Toast.LENGTH_SHORT).show()
-                            Timber.e("Hue ID " + mapEntry.key)
-                        }
-                    }, errorHandler)
+        if (hueUserId != null) {
+            Timber.d("Got HueId")
+        } else {
+            Timber.d("No HueId")
+
+//            HueApiService.getRequestNewUserIdSingle()
+//                    .subscribe({ mapEntry ->
+//                        if (mapEntry.key.equals(HueApiService.SUCCESS_TAG)) {
+//                            Timber.d("Hue ID " + mapEntry.value.username)
+//                            writeHueUserId(mapEntry.value.username)
+//                            HueApiService.userId = mapEntry.value.username
+//                        } else {
+//                            Toast.makeText(this, "No userId saved. Press Hue Bridge button and try again", Toast.LENGTH_SHORT).show()
+//                            Timber.e("Hue ID " + mapEntry.key)
+//                        }
+//                    }, errorHandler)
         }
     }
 
