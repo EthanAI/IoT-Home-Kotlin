@@ -58,7 +58,7 @@ interface WeMoService {
         private fun changeLight(lightUrl: String, lightOn: Boolean) {
             create().flipSwitch(lightUrl, buildRequestBody(lightOn))
                     .subscribe({ response ->
-                        Log.d("Wemo ", response)
+                        Timber.d(response)
                     }, errorHandler)
         }
 

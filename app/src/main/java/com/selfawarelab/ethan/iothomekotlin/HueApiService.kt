@@ -97,7 +97,6 @@ interface HueApiService {
         }
 
         private val errorHandler = { error: Throwable ->
-            Log.e("Error ", error.localizedMessage)
             Timber.e("HueApi: %s", error.localizedMessage)
         }
     }

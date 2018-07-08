@@ -8,6 +8,9 @@ import android.widget.Toast
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
+import timber.log.Timber.DebugTree
+
+
 
 // TODO: UI to request user to hit bridge button when needed
 // TODO: get username
@@ -20,13 +23,17 @@ import timber.log.Timber
 
 // Probably best to fetch bridgeIp each time
 class MainActivity : AppCompatActivity() {
-    val USERID_KEY = getString(R.string.userIdKey)
+    val USERID_KEY = "gg"
 
     var disposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Timber.plant(DebugTree())
+        
+        val sdf = getString(R.string.userIdKey)
 
         // Wire up UI
         connectUI()
@@ -40,12 +47,12 @@ class MainActivity : AppCompatActivity() {
             HueApiService.getRequestNewUserIdSingle()
                     .subscribe({ mapEntry ->
                         if (mapEntry.key.equals(HueApiService.SUCCESS_TAG)) {
-                            Log.e("Hue ID", mapEntry.value.username)
+                            Timber.d("Hue ID " + mapEntry.value.username)
                             writeHueUserId(mapEntry.value.username)
                             HueApiService.userId = mapEntry.value.username
                         } else {
                             Toast.makeText(this, "No userId saved. Press Hue Bridge button and try again", Toast.LENGTH_SHORT).show()
-                            Log.e("Hue ID", mapEntry.key)
+                            Timber.e("Hue ID " + mapEntry.key)
                         }
                     }, errorHandler)
         }
