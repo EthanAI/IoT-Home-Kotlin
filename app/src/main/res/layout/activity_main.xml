@@ -36,4 +36,14 @@
         android:checked="true"
         />
 
+    <ToggleButton
+        android:id="@+id/bathroomLightToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/oneLightToggleButton"
+        android:textOn="Bathroom On"
+        android:textOff="Bathroom Off"
+        android:checked="true"
+        />
+
 </android.support.constraint.ConstraintLayout>

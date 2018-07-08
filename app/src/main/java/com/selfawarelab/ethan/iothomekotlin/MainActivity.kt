@@ -2,6 +2,7 @@ package com.selfawarelab.ethan.iothomekotlin
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -14,9 +15,10 @@ import timber.log.Timber
 // TODO: parse light state responses
 // TODO: UI inputs
 // TODO: UI display state
-// TODO: colors
-// TODO: shared code refactor
+// TODO: Hue colors
 // TODO: Fix Timber logging
+// TODO: Put everything into other classes
+
 // Probably best to fetch bridgeIp each time
 class MainActivity : AppCompatActivity() {
     var disposable: Disposable? = null
@@ -44,6 +46,9 @@ class MainActivity : AppCompatActivity() {
         }
         oneLightToggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
             changeLight("1", isChecked)
+        }
+        bathroomLightToggleButton.setOnCheckedChangeListener { buttonView, isChecked ->
+            changeWeMoLight(isChecked)
         }
     }
 
@@ -98,6 +103,16 @@ class MainActivity : AppCompatActivity() {
             .map(toBridgeUrl)
 
     val errorHandler = { error: Throwable ->
+        Log.e("Error ", error.localizedMessage)
         Timber.e("HueBridge: %s", error.localizedMessage)
+    }
+
+    fun changeWeMoLight(lightOn: Boolean) {
+
+        WeMoService.create("http://192.168.86.22:49153/").flipSwitch(WeMoService.buildRequestBody(lightOn))
+                .subscribeOn(Schedulers.io())
+                .subscribe({ response ->
+                    Log.e("Wemo ", response)
+                }, errorHandler)
     }
 }
